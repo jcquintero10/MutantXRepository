@@ -47,9 +47,7 @@ public class MutantController implements IMutantController {
 		if (mutant) {
 			mutantStats.setMutant(mutant);
 			int id = insertStats(mutantStats);
-			if(id >0) {
-				mutantStats.setId(id);
-			}else {
+			if(id <0) {
 				throw new MutantException(Constant.MESSAGE_ERROR_INSERT);
 			}		
 		}
@@ -71,12 +69,23 @@ public class MutantController implements IMutantController {
 	 * @throws Exception
 	 */
 	private int insertStats(MutantStat mutantStats) throws Exception {
+		int id = 0;
 		try {
 			createTable();
-			return databaseController.insertTable(Constant.INSERT_STATS_SQL, mutantStats);
+			int value = databaseController.getSequenceVal(Constant.GET_SEQUENCE_VAL);
+			if(value >0) {
+				mutantStats.setId(value);
+				int result = databaseController.insertTable(Constant.INSERT_STATS_SQL, mutantStats);
+				if(result >0) {
+					id = value;
+				}
+			}
+			
 		} catch (Exception e) {
 			throw new MutantException(Constant.MESSAGE_ERROR_QUERY + e.getMessage());
 		}
+		
+		return id;
 	}
 	
 	/**

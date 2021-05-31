@@ -3,6 +3,7 @@ package co.com.mutantteam.controller;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import co.com.mutantteam.model.MutantStat;
@@ -17,26 +18,44 @@ import co.com.mutantteam.utility.MutantException;
  */
 public class DataBaseController implements IDataBaseController {
 
-	public void createSequence() throws Exception {
+	public void createSequence() throws Exception {		
+		executeQuery(Constant.SEQUENCE);
+	}
+	
+	public int getSequenceVal(String nameSequence) throws Exception {
 		Connection connection = null;
 		Statement statement = null;
+		int value = 0;
 		try {
-			connection = DataBaseUtil.getConnection();
-			statement = connection.createStatement();
-			statement.execute(Constant.SEQUENCE);
+			if (nameSequence != null && !nameSequence.trim().isEmpty()) {
+				connection = DataBaseUtil.getConnection();
+				statement = connection.createStatement();
+				ResultSet rs = statement.executeQuery(nameSequence);
+				if(rs.next()) {
+					value = (int)rs.getLong(1);
+				}
+			}
 
 		} catch (Exception e) {
-			throw new MutantException(e.getMessage());
+			throw new MutantException(Constant.MESSAGE_ERROR_QUERY + " " + nameSequence + " " + e.getMessage());
 		} finally {
 			if (statement != null)
 				statement.close();
-			if (connection != null)
+			if (connection != null) {
+				connection.commit();
 				connection.close();
+			}
 		}
+		
+		return value;	
 	}
 
 	@Override
 	public void createTable(String query) throws Exception {
+		executeQuery(query);
+	}
+
+	private void executeQuery(String query) throws MutantException, SQLException {
 		Connection connection = null;
 		Statement statement = null;
 		try {
@@ -51,8 +70,10 @@ public class DataBaseController implements IDataBaseController {
 		} finally {
 			if (statement != null)
 				statement.close();
-			if (connection != null)
+			if (connection != null) {
+				connection.commit();
 				connection.close();
+			}
 		}
 	}
 
@@ -86,8 +107,10 @@ public class DataBaseController implements IDataBaseController {
 		} finally {
 			if (preparedStatement != null)
 				preparedStatement.close();
-			if (connection != null)
+			if (connection != null) {
+				connection.commit();
 				connection.close();
+			}				
 		}
 
 		return mutantStat;
@@ -102,22 +125,15 @@ public class DataBaseController implements IDataBaseController {
 			if (query != null && !query.trim().isEmpty() && obj instanceof MutantStat) {
 				MutantStat mutantStat = (MutantStat) obj;
 				connection = DataBaseUtil.getConnection();
-				preparedStatement = connection.prepareStatement(Constant.INSERT_STATS_SQL,
-						Statement.RETURN_GENERATED_KEYS);
+				preparedStatement = connection.prepareStatement(Constant.INSERT_STATS_SQL);
 				int cont = 1;
+				preparedStatement.setInt(cont++, mutantStat.getId());
 				preparedStatement.setString(cont++, mutantStat.getSequence());
 				preparedStatement.setInt(cont++, mutantStat.getCountMutantSequence());
 				preparedStatement.setInt(cont++, mutantStat.getCountHumanSequence());
 				preparedStatement.setDouble(cont++, mutantStat.getRatio());
 
-				id = preparedStatement.executeUpdate();
-				connection.commit();
-				ResultSet rs = preparedStatement.getGeneratedKeys();
-				if (rs.next()) {
-					id = (int) rs.getLong(1);
-				} else {
-					System.out.println("Message => Generated Key cannot be accessed.");
-				}
+				id = preparedStatement.executeUpdate();				
 			}
 
 		} catch (Exception e) {
@@ -125,8 +141,10 @@ public class DataBaseController implements IDataBaseController {
 		} finally {
 			if (preparedStatement != null)
 				preparedStatement.close();
-			if (connection != null)
+			if (connection != null) {
+				connection.commit();
 				connection.close();
+			}
 		}
 
 		return id;

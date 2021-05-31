@@ -29,6 +29,7 @@ public class Constant {
 	public static final int NUMBER_EQUAL_BASES = 4;
 	
 	public static final String SEQUENCE = "CREATE SEQUENCE  IF NOT EXISTS MUTANT_ID START WITH 1 INCREMENT BY 1";
+	public static final String GET_SEQUENCE_VAL = "select MUTANT_ID.nextval from dual;";
 	
 	public static final String QUERY_CREATE_TABLE_STATS = "CREATE TABLE IF NOT EXISTS dna_stats " + 
             "(id NUMBER NOT NULL PRIMARY KEY, " + 
@@ -39,7 +40,7 @@ public class Constant {
 		
 	public static final String INSERT_STATS_SQL = "INSERT INTO dna_stats" +
 		        "  (id,sequence, count_mutant_dna, count_human_dna, ratio) VALUES " +
-		        " (NEXTVAL('MUTANT_ID'),?, ?, ?, ?);";
+		        " (?,?, ?, ?, ?);";
 	
 	
 	public static final String SELECT_STATS_SQL = "select count_mutant_dna,count_human_dna,ratio from dna_stats where id =?";

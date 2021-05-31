@@ -16,4 +16,6 @@ public interface IDataBaseController {
 	MutantStat selectTable(String query, int id) throws Exception;
 
 	int insertTable(String query, Object obj) throws Exception;
+	
+	public int getSequenceVal(String query) throws Exception;
 }

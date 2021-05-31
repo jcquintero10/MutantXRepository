@@ -27,6 +27,8 @@ import com.google.gson.GsonBuilder;
 
 import co.com.mutantteam.controller.MutantController;
 import co.com.mutantteam.databuilder.MutantDtoDataBuilder;
+import co.com.mutantteam.databuilder.MutantStatDataBuilder;
+import co.com.mutantteam.databuilder.ResponseServiceDataBuilder;
 import co.com.mutantteam.model.MutantDto;
 import co.com.mutantteam.model.MutantStat;
 import co.com.mutantteam.model.ResponseService;
@@ -89,8 +91,7 @@ public class MutantTest extends JerseyTest {
 
 			return Response.status(httpStatus).entity(result).build();
 		}
-		
-		
+
 		@GET
 		@Path("/stats/{id}")
 		@Produces(MediaType.APPLICATION_JSON)
@@ -98,31 +99,30 @@ public class MutantTest extends JerseyTest {
 			Object message = null;
 			Status httpStatus = null;
 			try {
-				if(id  < 0){
-			        return Response.noContent().build();
-			    }
+				if (id < 0) {
+					return Response.noContent().build();
+				}
 				MutantStat stats = mutantController.getStatsMutantDNA(id);
-				if(stats != null) {
+				if (stats != null) {
 					httpStatus = Response.Status.OK;
 					message = stats.toString();
-				}else {
+				} else {
 					httpStatus = Response.Status.NO_CONTENT;
 					message = Constant.MESSAGE_NOT_STATS;
 				}
-					
+
 			} catch (Exception e) {
 				httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
 				message = e.getMessage();
 			}
-			
-			
+
 			ResponseService response = new ResponseService();
-			response.setMessage((String)message);
-			
+			response.setMessage((String) message);
+
 			String result = gson.toJson(response);
-		    return Response.status(httpStatus).entity(result).build();
+			return Response.status(httpStatus).entity(result).build();
 		}
-		
+
 	}
 
 	@Override
@@ -134,94 +134,125 @@ public class MutantTest extends JerseyTest {
 
 	@Test
 	public void isAMutantTest() {
-		try {
-			String[] dna = { "ATGCGA", "CAGTGC", "TTATGT", "AGAAGG", "CCCCTA", "TCACTG" };
-			mutantDtoDataBuilder.addDna(dna);
-			MutantDto mutantDto = mutantDtoDataBuilder.build();
-			final Response response = target("mutantservice/mutant").request().post(Entity.json(mutantDto),
-					Response.class);
-			String responseAsString = response.readEntity(String.class);
-			assertEquals(200, response.getStatus());
-			ResponseService responseService = gson.fromJson(responseAsString, ResponseService.class);
-			assertEquals("La sequencia de ADN pertenece a un mutante  ID:  1", responseService.getMessage());
-		} catch (Exception e) {
-			e.getMessage();
-		}
+		String[] dna = { "ATGCGA", "CAGTGC", "TTATGT", "AGAAGG", "CCCCTA", "TCACTG" };
+		mutantDtoDataBuilder.addDna(dna);
+		MutantDto mutantDto = mutantDtoDataBuilder.build();
+		final Response response = target("mutantservice/mutant").request().post(Entity.json(mutantDto), Response.class);
+		String responseAsString = response.readEntity(String.class);
+		assertEquals(200, response.getStatus());
+		ResponseService responseService = gson.fromJson(responseAsString, ResponseService.class);
+		assertTrue(responseService.getMessage().contains("La sequencia de ADN pertenece a un mutante  ID:"));
 	}
-	
+
 	@Test
 	public void badRequest() {
-		try {
-			String[] dna = {};
-			mutantDtoDataBuilder.addDna(dna);
-			MutantDto mutantDto = mutantDtoDataBuilder.build();
-			final Response response = target("mutantservice/mutant").request().post(Entity.json(mutantDto),Response.class);
-			String responseAsString = response.readEntity(String.class);
-			assertEquals(400, response.getStatus());
-			ResponseService responseService = gson.fromJson(responseAsString, ResponseService.class);
-			assertEquals(Constant.MESSAGE_MANDATORY_SEQUENCE, responseService.getMessage());
-		} catch (Exception e) {
-			e.getMessage();
-		}
+		String[] dna = {};
+		mutantDtoDataBuilder.addDna(dna);
+		MutantDto mutantDto = mutantDtoDataBuilder.build();
+		final Response response = target("mutantservice/mutant").request().post(Entity.json(mutantDto), Response.class);
+		String responseAsString = response.readEntity(String.class);
+		assertEquals(400, response.getStatus());
+		ResponseService responseService = gson.fromJson(responseAsString, ResponseService.class);
+		assertEquals(Constant.MESSAGE_MANDATORY_SEQUENCE, responseService.getMessage());
 	}
-	
+
 	@Test
 	public void isNotMutantTest() {
-		try {
-			String[] dna = {"TTGCAA","CAGTGC","TTATGT","AGAAGG","CCCCTA","TCACTG"};
-			mutantDtoDataBuilder.addDna(dna);
-			MutantDto mutantDto = mutantDtoDataBuilder.build();
-			final Response response = target("mutantservice/mutant").request().post(Entity.json(mutantDto),Response.class);
-			String responseAsString = response.readEntity(String.class);
-			assertEquals(403, response.getStatus());
-			ResponseService responseService = gson.fromJson(responseAsString, ResponseService.class);
-			assertEquals("La sequencia de ADN no pertenece a un mutante", responseService.getMessage());
-		} catch (Exception e) {
-			e.getMessage();
-		}
+		String[] dna = { "TTGCAA", "CAGTGC", "TTATGT", "AGAAGG", "CCCCTA", "TCACTG" };
+		mutantDtoDataBuilder.addDna(dna);
+		MutantDto mutantDto = mutantDtoDataBuilder.build();
+		final Response response = target("mutantservice/mutant").request().post(Entity.json(mutantDto), Response.class);
+		String responseAsString = response.readEntity(String.class);
+		assertEquals(403, response.getStatus());
+		ResponseService responseService = gson.fromJson(responseAsString, ResponseService.class);
+		assertEquals("La sequencia de ADN no pertenece a un mutante", responseService.getMessage());
 	}
-	
-	
+
 	@Test
 	public void statsTest() {
-		try {
-			int id = 1;
-			final Response response = target("mutantservice/stats/"+id).request().get();
-			assertEquals(200, response.getStatus());
-		} catch (Exception e) {
-			e.getMessage();
-		}
+		int id = 1;
+		final Response response = target("mutantservice/stats/" + id).request().get();
+		assertEquals(200, response.getStatus());
 	}
 	
+	@Test
+	public void statsNotIdTest() {
+		int id = -11;
+		final Response response = target("mutantservice/stats/" + id).request().get();
+		assertEquals(204, response.getStatus());
+	}
+
 	@Test
 	public void noStatsTest() {
-		try {
-			int id = 0;
-			final Response response = target("mutantservice/stats/"+id).request().get();
-			assertEquals(204, response.getStatus());
-		} catch (Exception e) {
-			e.getMessage();
-		}
+		int id = 0;
+		final Response response = target("mutantservice/stats/" + id).request().get();
+		assertEquals(204, response.getStatus());
 	}
-	
+
 	@Test
-	public void exceptionTest() {
-		try {
-			String[] dna = {"TTGCAA","CAGTGC","TTATGT","AGAAGG","CCCCTA","TCACTG"};
-			mutantDtoDataBuilder.addDna(dna);
-			MutantDto mutantDto = mutantDtoDataBuilder.build();
-			MutantException mutantException = new MutantException(Constant.MESSAGE_ERROR);
-			mutantController = Mockito.mock(MutantController.class);
-			Mockito.when(mutantController.isMutant(dna)).thenThrow(mutantException);
-			final Response response = target("mutantservice/mutant").request().post(Entity.json(mutantDto),Response.class);
-			String responseAsString = response.readEntity(String.class);
-			assertEquals(500, response.getStatus());
-			ResponseService responseService = gson.fromJson(responseAsString, ResponseService.class);
-			assertTrue(responseService.getMessage().contains(Constant.MESSAGE_ERROR));
-		} catch (Exception e) {
-			e.getMessage();
-		}
+	public void exceptionTest() throws Exception {
+		String[] dna = { "TTGCAA", "CAGTGC", "TTATGT", "AGAAGG", "CCCCTA", "TCACTG" };
+		mutantDtoDataBuilder.addDna(dna);
+		MutantDto mutantDto = mutantDtoDataBuilder.build();
+		MutantException mutantException = new MutantException(Constant.MESSAGE_ERROR);
+		mutantController = Mockito.mock(MutantController.class);
+		Mockito.when(mutantController.isMutant(dna)).thenThrow(mutantException);
+		final Response response = target("mutantservice/mutant").request().post(Entity.json(mutantDto), Response.class);
+		String responseAsString = response.readEntity(String.class);
+		assertEquals(500, response.getStatus());
+		ResponseService responseService = gson.fromJson(responseAsString, ResponseService.class);
+		assertTrue(responseService.getMessage().contains(Constant.MESSAGE_ERROR));
 	}
-	
+
+	@Test
+	public void mutantStatDataBuilderTest() {
+		MutantStatDataBuilder mutantStatDataBuilder = new MutantStatDataBuilder();
+		mutantStatDataBuilder.addCountHumanSequence(3);
+		mutantStatDataBuilder.addCountMutantSequence(10);
+		mutantStatDataBuilder.addRatio(1.0);
+		mutantStatDataBuilder.addSequence("agcgcgcgcg");
+		mutantStatDataBuilder.addIsMutant(true);
+		MutantStat mutantStatTest = mutantStatDataBuilder.addId(100).build();
+
+		MutantStat mutantStat = new MutantStat();
+		mutantStat.setId(100);
+		mutantStat.setCountHumanSequence(3);
+		mutantStat.setCountMutantSequence(10);
+		mutantStat.setRatio(1.0);
+		mutantStat.setSequence("agcgcgcgcg");
+
+		assertEquals(mutantStat.getCountHumanSequence(), mutantStatTest.getCountHumanSequence());
+		assertEquals(mutantStat.getCountMutantSequence(), mutantStatTest.getCountMutantSequence());
+		assertEquals(mutantStat.getId(), mutantStatTest.getId());
+		assertEquals(mutantStat.getSequence(), mutantStatTest.getSequence());
+		assertEquals(true, mutantStatTest.isMutant());
+	}
+
+	@Test
+	public void responseServiceDataBuilderTest() {
+		ResponseServiceDataBuilder responseServiceDataBuilder = new ResponseServiceDataBuilder();
+		ResponseService responseServiceTest = responseServiceDataBuilder.addMessage("Prueba exitosa").build();
+
+		ResponseService responseService = new ResponseService();
+		responseService.setMessage("Prueba exitosa");
+
+		assertEquals(responseService.getMessage(), responseServiceTest.getMessage());
+	}
+
+	@Test
+	public void statsErrorTest() throws Exception {
+		int id = 0;
+		MutantException mutantException = new MutantException(Constant.MESSAGE_ERROR_QUERY);
+		mutantController = Mockito.mock(MutantController.class);
+		Mockito.when(mutantController.getStatsMutantDNA(id)).thenThrow(mutantException);
+
+		final Response response = target("mutantservice/stats/" + id).request().get();
+		String responseAsString = response.readEntity(String.class);
+
+		assertEquals(500, response.getStatus());
+		ResponseService responseService = gson.fromJson(responseAsString, ResponseService.class);
+		assertTrue(responseService.getMessage().contains(Constant.MESSAGE_ERROR_QUERY));
+
+	}
 	
 }

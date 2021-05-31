@@ -13,7 +13,9 @@ Operaciones:
 1.) Consultar mutante:
 ------------------------------------------------------------------------------------------------------------------------
 *Verbo: POST
+
 *URL: {servidor:port}/mutantservice/mutant
+
 *Request: Recibe un body tipo de dato JSON:
 
 Ejemplo: 
@@ -51,7 +53,9 @@ Un objeto JSON con la estructura:
 2.) Verificar estadísticas
 ------------------------------------------------------------------------------------------------------------------------- 
 *Verbo: GET
+
 *URL: {servidor:port}/mutantservice/stats/{id}
+
 *Request: Recibe parametro de tipo entero(UID que identifica el recurso mutante)
 
 Respuestas:

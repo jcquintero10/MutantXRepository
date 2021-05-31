@@ -88,5 +88,15 @@ Para Ejecutar proyecto en Local
 ------------------------------------------------------------------------------------------------------------------------------
 Debe correr como Java Application la clase RestServer
 
+Consumir Servicios en Local :
+-Esta por defecto configurado el puerto 9093: 
+
+Ejemplos de URL para consumir en un cliente REST:
+
+http://localhost:9093/mutantservice/mutant
+
+http://localhost:9093/mutantservice/stats/195
+
+
 ------------------------------------------------------------------------------------------------------------------------------
 by Juan Camilo Quintero 

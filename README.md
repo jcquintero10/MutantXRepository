@@ -3,15 +3,15 @@ Repositorio prueba Mercado Libre
 ------------------------------------------------------------------------------------------------------------------------
 Especificaciones Proyecto Mutant
 ------------------------------------------------------------------------------
-1.)Proyecto implementado en Java con maven, jersey Rest, Junit, mockito y h2.
+-Proyecto implementado en Java con maven, jersey Rest, Junit, mockito.
 
-2.)Para almacenar datos se utilizo una Base de datos en memoria(H2)
+-Para almacenar datos se utilizo una Base de datos en memoria(H2)
 ------------------------------------------------------------------------------
 Paso para consumir la API de Mutant:
 ------------------------------------------------------------------------------------------------------------------------
 Operaciones:
 
-1.)consultar mutante:
+1.) Consultar mutante:
 ------------------------------------------------------------------------------------------------------------------------
 *Verbo: POST
 *URL: {servidor:port}/mutantservice/mutant
@@ -49,7 +49,7 @@ Un objeto JSON con la estructura:
 }
 
 -------------------------------------------------------------------------------------------------------------------------
-2.) verficiar estadísticas
+2.) Verificar estadísticas
 ------------------------------------------------------------------------------------------------------------------------- 
 *Verbo: GET
 *URL: {servidor:port}/mutantservice/stats/{id}
